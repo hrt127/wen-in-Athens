@@ -1,53 +1,134 @@
-```html name=index.html
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Options Greeks Playground — Single File</title>
+  <meta name="description"
+    content="Interactive Options Greeks Playground - Learn Delta, Gamma, Vega, and Theta with live BTC context" />
+  <title>Options Greeks Playground — Wen in Athens</title>
+  <link rel="manifest" href="manifest.json" />
 
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
-  <style>
-    :root{
-      --bg:#061025; --card:#071528; --muted:#9fb0cc; --accent:#22c1c3; --accent-2:#ffb547;
-      --ok:#8be3a9; --warn:#ff9b9b; --glass: rgba(255,255,255,0.02);
-    }
-    *{box-sizing:border-box;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;}
-    body{margin:0;background:linear-gradient(180deg,#031226,#071428);color:#e7f3ff}
-    header{padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;align-items:center;gap:12px}
-    header h1{margin:0;font-size:18px}
-    main{max-width:1200px;margin:18px auto;padding:16px;display:grid;grid-template-columns:320px 1fr;gap:16px}
-    aside, section{background:var(--card);border-radius:10px;padding:14px;border:1px solid rgba(255,255,255,0.03)}
-    h2{margin:0 0 10px;color:var(--accent-2)}
-    label{display:block;color:var(--muted);font-size:13px;margin-bottom:6px}
-    input[type=range], input[type=number], select, input[type=text]{
-      width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:rgba(255,255,255,0.02);color:#eaf6ff;
-    }
-    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    .metric-row{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:8px;background:rgba(255,255,255,0.01);margin-bottom:8px}
-    .metric-row .label{color:var(--muted);font-size:13px}
-    .metric-row .value{font-weight:700}
-    canvas{width:100%;height:260px;border-radius:8px;background:linear-gradient(180deg,#041226,#051428);display:block}
-    .chart-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-    .btn{padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:rgba(255,255,255,0.01);color:#eaf6ff;cursor:pointer}
-    .btn.primary{border-color:var(--accent);background:linear-gradient(90deg,var(--accent),#86f0e7);color:#022026;font-weight:700}
-    .badge-list{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-    .badge{padding:6px 8px;border-radius:10px;background:rgba(0,0,0,0.2);color:var(--accent-2);font-weight:700}
-    .small{font-size:13px;color:var(--muted)}
-    table{width:100%;border-collapse:collapse;margin-top:10px;color:#dbefff}
-    th,td{border:1px solid rgba(255,255,255,0.03);padding:6px;text-align:right}
-    th:first-child,td:first-child{text-align:left}
-    .ok{color:var(--ok)} .warn{color:var(--warn)}
-    @media (max-width:980px){main{grid-template-columns:1fr;}}
-  </style>
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/onboarding.css" />
 </head>
+
 <body>
   <header>
     <h1>Options Greeks Playground</h1>
-    <div class="small">Interactive demo: calls/puts, Greeks, Chart.js, BTC play area & strategy guidance — single file</div>
+    <div class="small">Interactive demo: calls/puts, Greeks, Chart.js, BTC play area & strategy guidance</div>
+    <div style="margin-left:auto">
+      <button class="btn" onclick="restartOnboarding()" style="font-size:12px;padding:6px 10px"
+        title="Restart the guided tour">🔄 Restart Tour</button>
+    </div>
   </header>
+
+  <!-- Onboarding Overlay -->
+  <div id="onboarding-overlay">
+    <button class="onboarding-skip" onclick="skipOnboarding()">Skip Tour</button>
+
+    <!-- Step 1: Welcome -->
+    <div class="onboarding-card" id="onboarding-step-1">
+      <div class="onboarding-step-indicator">Step 1 of 4</div>
+      <h2>Welcome to Wen-in-Athens</h2>
+      <p>This app helps you explore options strategies interactively. Don't worry if you're new to options or Greeks —
+        we'll guide you step by step.</p>
+      <p>You'll learn how to:</p>
+      <ul>
+        <li>• Pick and understand different options strategies</li>
+        <li>• Adjust parameters and see real-time results</li>
+        <li>• Read payoff charts and risk measures</li>
+        <li>• Understand what Delta, Gamma, Vega, and Theta mean</li>
+      </ul>
+      <div class="onboarding-nav">
+        <button class="btn primary" onclick="nextOnboardingStep(2)">Start Exploring →</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Choose Strategy -->
+    <div class="onboarding-card" id="onboarding-step-2" style="display:none;">
+      <div class="onboarding-step-indicator">Step 2 of 4</div>
+      <h2>Step 1: Pick a Strategy</h2>
+      <p>Select one of the common strategies below to see how it works. Each choice will show you a payoff chart and key
+        risk measures.</p>
+      <ul>
+        <li>
+          <button class="strategy-btn" onclick="loadStrategyFromOnboarding('call')">
+            <strong>Call Option</strong><br>
+            <span class="small">Right to buy at a set price. Profits when price goes up.</span>
+          </button>
+        </li>
+        <li>
+          <button class="strategy-btn" onclick="loadStrategyFromOnboarding('put')">
+            <strong>Put Option</strong><br>
+            <span class="small">Right to sell at a set price. Profits when price goes down.</span>
+          </button>
+        </li>
+        <li>
+          <button class="strategy-btn" onclick="loadStrategyFromOnboarding('iron_condor')">
+            <strong>Iron Condor</strong><br>
+            <span class="small">Advanced strategy: limited profit, limited risk. Good for neutral markets.</span>
+          </button>
+        </li>
+      </ul>
+      <div class="onboarding-nav">
+        <button class="btn" onclick="nextOnboardingStep(1)">← Back</button>
+        <button class="btn" onclick="nextOnboardingStep(3)">Next →</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Adjust & Learn -->
+    <div class="onboarding-card" id="onboarding-step-3" style="display:none;">
+      <div class="onboarding-step-indicator">Step 3 of 4</div>
+      <h2>Step 2: Adjust and See Results</h2>
+      <p>Use the sliders in the left panel to change strike prices, expiry dates, or volatility. Watch how the chart and
+        metrics update instantly.</p>
+      <p><strong>Understanding the Greeks:</strong></p>
+      <ul>
+        <li><span class="greek-tooltip"
+            data-tooltip="Delta: How much the option price changes when the underlying asset moves $1">Δ (Delta)</span>
+          — Sensitivity to price changes</li>
+        <li><span class="greek-tooltip" data-tooltip="Gamma: How quickly Delta changes as the underlying moves">Γ
+            (Gamma)</span> — Rate of change of Delta</li>
+        <li><span class="greek-tooltip"
+            data-tooltip="Vega: How much the option price changes when volatility increases by 1%">Vega</span> —
+          Sensitivity to volatility</li>
+        <li><span class="greek-tooltip" data-tooltip="Theta: How much value the option loses per day as time passes">Θ
+            (Theta)</span> — Time decay (value lost per day)</li>
+      </ul>
+      <p><strong>Tip:</strong> Hover over the Greek symbols above to see what they mean. Try adjusting the sliders now!
+      </p>
+      <div class="onboarding-nav">
+        <button class="btn" onclick="nextOnboardingStep(2)">← Back</button>
+        <button class="btn primary" onclick="nextOnboardingStep(4)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Wrap-Up -->
+    <div class="onboarding-card" id="onboarding-step-4" style="display:none;">
+      <div class="onboarding-step-indicator">Step 4 of 4</div>
+      <h2>You're Ready! 🎉</h2>
+      <p>You've learned how to:</p>
+      <ul>
+        <li>✓ Pick a strategy that matches your market view</li>
+        <li>✓ Adjust parameters and see real-time updates</li>
+        <li>✓ Read the Greeks and understand what they mean</li>
+        <li>✓ Explore payoff charts and risk measures</li>
+      </ul>
+      <p>Now you can explore freely! Try different strategies, experiment with the quiz mode, and check out the strategy
+        guidance section.</p>
+      <p class="small" style="margin-top:16px;color:var(--muted)">Remember: This is an educational tool, not financial
+        advice. Always do your own research before trading.</p>
+      <div class="onboarding-nav">
+        <button class="btn" onclick="nextOnboardingStep(3)">← Back</button>
+        <button class="btn primary" onclick="finishOnboarding()">Start Exploring! 🚀</button>
+      </div>
+    </div>
+  </div>
 
   <main>
     <!-- LEFT: Controls / Glossary / Quiz / Badges -->
@@ -79,10 +160,16 @@
       </label>
       <div class="grid-2" style="margin-top:8px">
         <label>Side
-          <select id="inpSide"><option value="call">Call</option><option value="put">Put</option></select>
+          <select id="inpSide">
+            <option value="call">Call</option>
+            <option value="put">Put</option>
+          </select>
         </label>
         <label>Position
-          <select id="inpPosition"><option value="long">Long</option><option value="short">Short</option></select>
+          <select id="inpPosition">
+            <option value="long">Long</option>
+            <option value="short">Short</option>
+          </select>
         </label>
       </div>
 
@@ -114,18 +201,48 @@
       <h2>Metrics — Option prices & Greeks</h2>
       <div style="display:flex;gap:10px">
         <div style="flex:1;padding:10px;border-radius:8px;background:var(--glass)">
-          <div class="metric-row"><div class="label">Call Price</div><div class="value" id="priceCall">-</div></div>
-          <div class="metric-row"><div class="label">Delta</div><div class="value" id="deltaCall">-</div></div>
-          <div class="metric-row"><div class="label">Gamma</div><div class="value" id="gammaCall">-</div></div>
-          <div class="metric-row"><div class="label">Vega</div><div class="value" id="vegaCall">-</div></div>
-          <div class="metric-row"><div class="label">Theta (per day)</div><div class="value" id="thetaCall">-</div></div>
+          <div class="metric-row">
+            <div class="label">Call Price</div>
+            <div class="value" id="priceCall">-</div>
+          </div>
+          <div class="metric-row">
+            <div class="label">Delta</div>
+            <div class="value" id="deltaCall">-</div>
+          </div>
+          <div class="metric-row">
+            <div class="label">Gamma</div>
+            <div class="value" id="gammaCall">-</div>
+          </div>
+          <div class="metric-row">
+            <div class="label">Vega</div>
+            <div class="value" id="vegaCall">-</div>
+          </div>
+          <div class="metric-row">
+            <div class="label">Theta (per day)</div>
+            <div class="value" id="thetaCall">-</div>
+          </div>
         </div>
         <div style="flex:1;padding:10px;border-radius:8px;background:var(--glass)">
-          <div class="metric-row"><div class="label">Put Price</div><div class="value" id="pricePut">-</div></div>
-          <div class="metric-row"><div class="label">Delta</div><div class="value" id="deltaPut">-</div></div>
-          <div class="metric-row"><div class="label">Gamma</div><div class="value" id="gammaPut">-</div></div>
-          <div class="metric-row"><div class="label">Vega</div><div class="value" id="vegaPut">-</div></div>
-          <div class="metric-row"><div class="label">Theta (per day)</div><div class="value" id="thetaPut">-</div></div>
+          <div class="metric-row">
+            <div class="label">Put Price</div>
+            <div class="value" id="pricePut">-</div>
+          </div>
+          <div class="metric-row">
+            <div class="label">Delta</div>
+            <div class="value" id="deltaPut">-</div>
+          </div>
+          <div class="metric-row">
+            <div class="label">Gamma</div>
+            <div class="value" id="gammaPut">-</div>
+          </div>
+          <div class="metric-row">
+            <div class="label">Vega</div>
+            <div class="value" id="vegaPut">-</div>
+          </div>
+          <div class="metric-row">
+            <div class="label">Theta (per day)</div>
+            <div class="value" id="thetaPut">-</div>
+          </div>
         </div>
       </div>
 
@@ -146,11 +263,18 @@
           <div class="small" id="btcSummary">Fetching BTC summary...</div>
           <div style="margin-top:8px">
             <div class="small">Δ-like</div>
-            <div style="height:8px;background:#071424;border-radius:8px;overflow:hidden"><div id="mDelta" style="height:8px;width:10%;background:linear-gradient(90deg,var(--accent),var(--accent-2))"></div></div>
+            <div style="height:8px;background:#071424;border-radius:8px;overflow:hidden">
+              <div id="mDelta"
+                style="height:8px;width:10%;background:linear-gradient(90deg,var(--accent),var(--accent-2))"></div>
+            </div>
             <div class="small" style="margin-top:8px">Γ-like</div>
-            <div style="height:8px;background:#071424;border-radius:8px;overflow:hidden"><div id="mGamma" style="height:8px;width:10%;background:#9fb0ff"></div></div>
+            <div style="height:8px;background:#071424;border-radius:8px;overflow:hidden">
+              <div id="mGamma" style="height:8px;width:10%;background:#9fb0ff"></div>
+            </div>
             <div class="small" style="margin-top:8px">Vega-like</div>
-            <div style="height:8px;background:#071424;border-radius:8px;overflow:hidden"><div id="mVega" style="height:8px;width:10%;background:#ffd1a3"></div></div>
+            <div style="height:8px;background:#071424;border-radius:8px;overflow:hidden">
+              <div id="mVega" style="height:8px;width:10%;background:#ffd1a3"></div>
+            </div>
           </div>
           <div class="small" id="marketCombo" style="margin-top:8px;color:var(--muted)"></div>
         </div>
@@ -193,620 +317,15 @@
     </section>
   </main>
 
-  <footer style="padding:12px;color:var(--muted);text-align:center">Educational demo — not financial advice. Built with vanilla JS + Chart.js.</footer>
+  <footer style="padding:12px;color:var(--muted);text-align:center">Educational demo — not financial advice. Built with
+    vanilla JS + Chart.js.</footer>
 
-  <script>
-    // ---------- Utilities ----------
-    function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
-    function toYears(days){return Math.max(1,Number(days))/365}
-    function normPDF(x){return Math.exp(-0.5*x*x)/Math.sqrt(2*Math.PI)}
-    function normCDF(x){
-      const sign = x<0?-1:1; x=Math.abs(x)/Math.sqrt(2);
-      const t = 1/(1+0.3275911*x);
-      const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429;
-      const erf = 1 - (((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t)*Math.exp(-x*x);
-      return 0.5*(1+sign*erf);
-    }
-    function format(n, d=4){ if (!isFinite(n)) return '-'; return Number(n).toFixed(d) }
-
-    // ---------- Black-Scholes price + Greeks (both call & put) ----------
-    function d1(S,K,r,sigma,T){
-      const eps = 1e-12;
-      return (Math.log(S/K) + (r + 0.5*sigma*sigma)*T) / (Math.max(sigma*Math.sqrt(T), eps));
-    }
-    function d2(d1Val, sigma, T){ return d1Val - sigma*Math.sqrt(T); }
-
-    // Calculate option price for call or put
-    function calculateOptionPrice(params, side){
-      const {S,K,r,sigma,T} = params;
-      const d1v = d1(S,K,r,sigma,T);
-      const d2v = d2(d1v,sigma,T);
-      if (side === 'call'){
-        return S*normCDF(d1v) - K*Math.exp(-r*T)*normCDF(d2v);
-      } else {
-        return K*Math.exp(-r*T)*normCDF(-d2v) - S*normCDF(-d1v);
-      }
-    }
-
-    // Returns Greeks (delta, gamma, vega, theta-per-day) for call or put
-    function calculateGreeks(params, side){
-      const {S,K,r,sigma,T} = params;
-      const eps = 1e-12;
-      const d1v = d1(S,K,r,sigma,T);
-      const d2v = d2(d1v,sigma,T);
-      const pdf = normPDF(d1v);
-      const gamma = pdf / (Math.max(S*sigma*Math.sqrt(T), eps));
-      const vega = S * pdf * Math.sqrt(T); // per 1.0 vol (100%); we'll show per 1% or raw depending on UI
-      let delta, thetaYear;
-      if (side === 'call'){
-        delta = normCDF(d1v);
-        thetaYear = -(S * pdf * sigma) / (2*Math.sqrt(T)) - r*K*Math.exp(-r*T)*normCDF(d2v);
-      } else {
-        delta = normCDF(d1v) - 1;
-        thetaYear = -(S * pdf * sigma) / (2*Math.sqrt(T)) + r*K*Math.exp(-r*T)*normCDF(-d2v);
-      }
-      return {
-        delta,
-        gamma,
-        vega,            // per 1.0 vol (100%)
-        vegaPer1Pct: vega/100, // per 1%
-        thetaPerDay: thetaYear/365
-      };
-    }
-
-    // Apply position long/short sign to price & Greeks
-    function applyPositionSign({price, delta, gamma, vega, thetaPerDay}, position){
-      const sign = position === 'short' ? -1 : 1;
-      return {
-        price: price * sign,
-        delta: delta * sign,
-        gamma: gamma * sign,
-        vega: vega * sign,
-        thetaPerDay: thetaPerDay * sign
-      };
-    }
-
-    // ---------- DOM elements ----------
-    const els = {
-      inpS: document.getElementById('inpS'), inpSNum: document.getElementById('inpSNum'),
-      inpK: document.getElementById('inpK'), inpKNum: document.getElementById('inpKNum'),
-      inpDays: document.getElementById('inpDays'), inpDaysNum: document.getElementById('inpDaysNum'),
-      inpSigma: document.getElementById('inpSigma'), inpSigmaNum: document.getElementById('inpSigmaNum'),
-      inpSide: document.getElementById('inpSide'), inpPosition: document.getElementById('inpPosition'),
-      btnApplyInputs: document.getElementById('btnApplyInputs'), btnReset: document.getElementById('btnReset'),
-      priceCall: document.getElementById('priceCall'), deltaCall: document.getElementById('deltaCall'), gammaCall: document.getElementById('gammaCall'),
-      vegaCall: document.getElementById('vegaCall'), thetaCall: document.getElementById('thetaCall'),
-      pricePut: document.getElementById('pricePut'), deltaPut: document.getElementById('deltaPut'), gammaPut: document.getElementById('gammaPut'),
-      vegaPut: document.getElementById('vegaPut'), thetaPut: document.getElementById('thetaPut'),
-      mainChart: document.getElementById('mainChart'),
-      viewGreeks: document.getElementById('viewGreeks'), viewPrice: document.getElementById('viewPrice'), viewPnL: document.getElementById('viewPnL'),
-      btnAnimate: document.getElementById('btnAnimate'),
-      btcSummary: document.getElementById('btcSummary'), mDelta: document.getElementById('mDelta'), mGamma: document.getElementById('mGamma'),
-      mVega: document.getElementById('mVega'), marketCombo: document.getElementById('marketCombo'),
-      strategyPrompt: document.getElementById('strategyPrompt'), strategyChoice: document.getElementById('strategyChoice'),
-      userView: document.getElementById('userView'), userRationale: document.getElementById('userRationale'),
-      btnEvaluate: document.getElementById('btnEvaluate'), guidanceBox: document.getElementById('guidanceBox'),
-      btnApplyToSim: document.getElementById('btnApplyToSim'), exposureTable: document.getElementById('exposureTable'),
-      badgeList: document.getElementById('badgeList'),
-      quizQuestion: document.getElementById('quizQuestion'), quizChoices: document.getElementById('quizChoices'),
-      btnNextQ: document.getElementById('btnNextQ'), btnSubmitAnswer: document.getElementById('btnSubmitAnswer'),
-      quizFeedback: document.getElementById('quizFeedback'), quizScore: document.getElementById('quizScore'), quizStreak: document.getElementById('quizStreak')
-    };
-
-    // ---------- App state ----------
-    const state = {
-      inputs: { S: 90000, K: 90000, days: 30, sigma: 0.6, r: 0.0, side: 'call', position: 'long' },
-      outputs: {}, putOutputs: {},
-      chart: { instance: null, view: 'greeks', anim: true },
-      quiz: { score: 0, streak: 0, current: null },
-      badges: loadBadges(),
-      marketCombo: null,
-      strategyTemplate: null
-    };
-
-    // ---------- Persisted badges ----------
-    function loadBadges(){
-      try { return JSON.parse(localStorage.getItem('greeks_badges_v2')) || {earned:[],progress:{}}; } catch(e){ return {earned:[],progress:{}}; }
-    }
-    function saveBadges(){
-      localStorage.setItem('greeks_badges_v2', JSON.stringify(state.badges));
-      renderBadges();
-    }
-    function awardBadge(tag){
-      if (!state.badges.progress[tag]) state.badges.progress[tag]=0;
-      state.badges.progress[tag] += 1;
-      const goal = 3;
-      if (state.badges.progress[tag] >= goal && !state.badges.earned.includes(tag)) {
-        state.badges.earned.push(tag);
-        state.quizFeedback && (els.quizFeedback.innerHTML = `<span class="ok">Badge earned: ${badgeTitle(tag)} 🏅</span>`);
-      }
-      saveBadges();
-    }
-    function badgeTitle(tag){
-      return {delta:'Delta Master',gamma:'Gamma Guru',vega:'Vega Explorer',theta:'Theta Ticker'}[tag]||tag;
-    }
-    function renderBadges(){
-      els.badgeList.innerHTML = '';
-      if (!state.badges.earned.length) {
-        els.badgeList.innerHTML = '<div class="badge">No badges yet</div>';
-        return;
-      }
-      state.badges.earned.forEach(b => {
-        const d = document.createElement('div'); d.className='badge'; d.textContent = `${badgeTitle(b)} 🏅`; els.badgeList.appendChild(d);
-      });
-    }
-
-    // ---------- UI wiring & helpers ----------
-    function syncRangeNumber(rangeEl, numEl){
-      rangeEl.addEventListener('input', ()=>{ numEl.value = rangeEl.value; });
-      numEl.addEventListener('change', ()=>{ rangeEl.value = numEl.value; });
-    }
-    function setInputsToDOM(){
-      els.inpS.value = state.inputs.S; els.inpSNum.value = state.inputs.S;
-      els.inpK.value = state.inputs.K; els.inpKNum.value = state.inputs.K;
-      els.inpDays.value = state.inputs.days; els.inpDaysNum.value = state.inputs.days;
-      els.inpSigma.value = state.inputs.sigma; els.inpSigmaNum.value = state.inputs.sigma;
-      els.inpSide.value = state.inputs.side; els.inpPosition.value = state.inputs.position;
-    }
-
-    // ---------- Update calculations & UI ----------
-    function updateAllFromInputs(){
-      // read DOM inputs into state.inputs
-      state.inputs.S = Number(els.inpS.value);
-      state.inputs.K = Number(els.inpK.value);
-      state.inputs.days = Number(els.inpDays.value);
-      state.inputs.sigma = Number(els.inpSigma.value);
-      state.inputs.side = els.inpSide.value;
-      state.inputs.position = els.inpPosition.value;
-      state.inputs.r = Number(els.inpR?.value || 0);
-
-      const params = { S: state.inputs.S, K: state.inputs.K, r: state.inputs.r, sigma: state.inputs.sigma, T: toYears(state.inputs.days) };
-
-      // Call and put values
-      const callPrice = calculateOptionPrice(params, 'call');
-      const putPrice  = calculateOptionPrice(params, 'put');
-      const callG = calculateGreeks(params, 'call');
-      const putG  = calculateGreeks(params, 'put');
-
-      // Apply position sign to show net exposures if user selected short
-      const callSigned = applyPositionSign({price:callPrice,delta:callG.delta,gamma:callG.gamma,vega:callG.vegaPer1Pct,thetaPerDay:callG.thetaPerDay}, 'long');
-      const putSigned  = applyPositionSign({price:putPrice,delta:putG.delta,gamma:putG.gamma,vega:putG.vegaPer1Pct,thetaPerDay:putG.thetaPerDay}, 'long');
-
-      // UI: show raw (long) values; position sign is used when building multi-leg strategies
-      els.priceCall.textContent = format(callPrice, 2);
-      els.deltaCall.textContent = format(callG.delta, 4);
-      els.gammaCall.textContent = format(callG.gamma, 6);
-      els.vegaCall.textContent = format(callG.vegaPer1Pct, 4);
-      els.thetaCall.textContent = format(callG.thetaPerDay, 6);
-
-      els.pricePut.textContent = format(putPrice, 2);
-      els.deltaPut.textContent = format(putG.delta, 4);
-      els.gammaPut.textContent = format(putG.gamma, 6);
-      els.vegaPut.textContent = format(putG.vegaPer1Pct, 4);
-      els.thetaPut.textContent = format(putG.thetaPerDay, 6);
-
-      // update chart
-      if (state.chart.instance) updateChart();
-    }
-
-    // ---------- Chart (Chart.js) ----------
-    function initChart(){
-      const ctx = els.mainChart.getContext('2d');
-      state.chart.instance = new Chart(ctx, {
-        type: 'line',
-        data: { labels: [], datasets: [] },
-        options: {
-          responsive: true,
-          animation: { duration: state.chart.anim ? 600 : 0 },
-          plugins: { legend: { labels: { color:'#cfe8ff' } } },
-          scales: {
-            x: { ticks:{color:'#9fb0cc'}, grid:{color:'rgba(255,255,255,0.03)'} },
-            y: { ticks:{color:'#9fb0cc'}, grid:{color:'rgba(255,255,255,0.03)'} }
-          }
-        }
-      });
-      updateChart();
-    }
-
-    function generateSeries(view){
-      const { S, K, r, sigma, days } = state.inputs;
-      const T = toYears(days);
-      const span = 0.5; const steps = 41;
-      const labels = [], deltaSeries=[], gammaSeries=[], vegaSeries=[], thetaSeries=[], priceSeries=[], pnlSeries=[];
-      const basePrice = calculateOptionPrice({S,K,r,sigma,T}, 'call');
-
-      for (let i=0;i<steps;i++){
-        const Si = S*(1-span + (2*span)*i/(steps-1));
-        labels.push(Math.round(Si));
-        const gCall = calculateGreeks({S:Si,K,r,sigma,T}, 'call');
-        const callP = calculateOptionPrice({S:Si,K,r,sigma,T}, 'call');
-        deltaSeries.push(gCall.delta);
-        gammaSeries.push(gCall.gamma);
-        vegaSeries.push(gCall.vegaPer1Pct);
-        thetaSeries.push(gCall.thetaPerDay);
-        priceSeries.push(callP);
-        pnlSeries.push(callP - basePrice);
-      }
-
-      if (view === 'greeks') {
-        return {
-          labels,
-          datasets:[
-            {label:'Delta',data:deltaSeries,borderColor:'#8be3ff',tension:0.25},
-            {label:'Gamma',data:gammaSeries,borderColor:'#ffd4a3',tension:0.25},
-            {label:'Vega (per 1%)',data:vegaSeries,borderColor:'#ffd1ff',tension:0.25},
-            {label:'Theta (per day)',data:thetaSeries,borderColor:'#b9ffb3',tension:0.25},
-          ]
-        };
-      } else if (view === 'price') {
-        return { labels, datasets:[{label:'Call price',data:priceSeries,borderColor:'#a78bfa',tension:0.25}] };
-      } else {
-        return { labels, datasets:[{label:'Relative PnL',data:pnlSeries,borderColor:'#6b7280',tension:0.25}] };
-      }
-    }
-
-    function updateChart(){
-      const chart = state.chart.instance;
-      const payload = generateSeries(state.chart.view || 'greeks');
-      chart.data.labels = payload.labels;
-      chart.data.datasets = payload.datasets;
-      chart.options.animation.duration = state.chart.anim ? 600 : 0;
-      chart.update();
-    }
-
-    // ---------- Quiz: templates, generate, check ----------
-    const QUIZ_TEMPLATES = [
-      { q:'What happens to Vega when implied volatility increases (all else equal)?', options:['Decreases','Increases','Stays same'], correct:1, tag:'vega' },
-      { q:'For a long call, when underlying price rises, Delta...', options:['Decreases','Increases','Stays same'], correct:1, tag:'delta' },
-      { q:'As time to expiry approaches, Theta typically becomes...', options:['More positive','More negative','Unchanged'], correct:1, tag:'theta' },
-      { q:'Gamma for near-the-money options near expiry tends to...', options:['Decrease','Increase','Stay same'], correct:1, tag:'gamma' }
-    ];
-
-    function nextQuizQuestion(){
-      const idx = Math.floor(Math.random()*QUIZ_TEMPLATES.length);
-      state.quiz.current = JSON.parse(JSON.stringify(QUIZ_TEMPLATES[idx]));
-      renderQuiz();
-    }
-
-    function renderQuiz(){
-      const cur = state.quiz.current;
-      els.quizQuestion.textContent = cur.q;
-      els.quizChoices.innerHTML = '';
-      cur.options.forEach((opt,i)=>{
-        const btn = document.createElement('button');
-        btn.className='btn';
-        btn.textContent = `${String.fromCharCode(65+i)}: ${opt}`;
-        btn.onclick = ()=>{ selectQuizChoice(i); };
-        els.quizChoices.appendChild(btn);
-      });
-      els.btnSubmitAnswer.disabled = true;
-      els.quizFeedback.textContent = '';
-    }
-
-    let selectedQuizChoice = null;
-    function selectQuizChoice(i){
-      selectedQuizChoice = i;
-      [...els.quizChoices.children].forEach((b,idx)=>b.style.outline = idx===i ? '2px solid #86f0e7' : '');
-      els.btnSubmitAnswer.disabled = false;
-    }
-
-    function submitQuizAnswer(){
-      if (selectedQuizChoice === null) return;
-      const cur = state.quiz.current;
-      const correct = selectedQuizChoice === cur.correct;
-      if (correct){
-        state.quiz.score++; state.quiz.streak++; awardBadge(cur.tag);
-        els.quizFeedback.innerHTML = `<span class="ok">Correct.</span> Good job — ${badgeTitle(cur.tag)} progress tracked.`;
-      } else {
-        state.quiz.streak = 0;
-        els.quizFeedback.innerHTML = `<span class="warn">Incorrect.</span> Correct: ${cur.options[cur.correct]}`;
-      }
-      els.quizScore.textContent = state.quiz.score;
-      els.quizStreak.textContent = state.quiz.streak;
-      // disable submit until next
-      els.btnSubmitAnswer.disabled = true;
-      selectedQuizChoice = null;
-    }
-
-    // ---------- BTC Market play area: fetch + parse + mapping ----------
-    // fetchBTCData -> parseMarketGreeks -> renderMarketCombo
-    async function fetchBTCData(){
-      // NOTE: placeholder endpoint. Replace with your real API endpoint if available.
-      const url = 'https://app.elfa.ai/api/btc/summary'; // placeholder
-      try {
-        const resp = await fetch(url, {cache:'no-store'});
-        if (!resp.ok) throw new Error('no data');
-        const data = await resp.json();
-        const combo = parseMarketGreeks(data);
-        renderMarketCombo(combo);
-        state.marketCombo = combo;
-      } catch(err){
-        // fallback: create synthetic data & parse a sample text report
-        const sampleReport = "Markets: BTC $89,565; VIX 18.2; put/call ratio 3.2; implied > realized; risk-off tone.";
-        const parsed = parseTextReport(sampleReport);
-        const combo = mapParsedToCombo(parsed);
-        renderMarketCombo(combo);
-        state.marketCombo = combo;
-      }
-    }
-
-    // Parse JSON response (if available). This maps fields to friendly combo.
-    function parseMarketGreeks(json){
-      // expecting keys like price, vol.implied, vol.realized, momentum, pcr, sentiment...
-      const price = json.price || json.last || 90000;
-      const iv = json.vol?.implied ?? 0.6;
-      const rv = json.vol?.realized ?? 0.45;
-      const pcr = json.putCallRatio ?? json.pcr ?? 1.8;
-      const sentiment = json.sentiment ?? (pcr>2.5 ? 'risk-off':'neutral');
-      const deltaLike = clamp((json.trend?.slope ?? 0)*0.7, -1, 1);
-      const gammaLike = clamp(iv > 0.5 ? 0.7 : 0.3, 0, 1);
-      const vegaLike = clamp(iv - rv + 0.4, 0, 1);
-      const thetaLike = clamp(iv - rv > 0.05 ? 0.3 : 0.15, 0, 1);
-      return { price, deltaLike, gammaLike, vegaLike, thetaLike, iv, rv, pcr, sentiment };
-    }
-
-    // Quick text report parser (very simple heuristics)
-    function parseTextReport(text){
-      const num = (s)=>{ const m = s && s.match(/\$?([0-9,]{3,})/); return m?Number(m[1].replace(/,/g,'')):null }
-      const btc = num(text) || 90000;
-      const vMatch = text.match(/VIX\s*([\d.]+)/i);
-      const vix = vMatch ? Number(vMatch[1]) : 18;
-      const pcrMatch = text.match(/put\/call ratio\s*([0-9.]+)/i);
-      const pcr = pcrMatch ? Number(pcrMatch[1]) : 2.0;
-      const impliedRich = /implied.*higher|heavy put|skew/i.test(text);
-      return {btc, vix, pcr, impliedRich};
-    }
-
-    // Map parsed report to combo greeks-like values
-    function mapParsedToCombo(parsed){
-      const deltaLike = parsed.impliedRich ? -0.25 : 0.05;
-      const gammaLike = parsed.vix > 16 ? 0.6 : 0.3;
-      const vegaLike = parsed.pcr > 2.5 ? 0.7 : 0.35;
-      const thetaLike = parsed.impliedRich ? 0.25 : 0.12;
-      return { price: parsed.btc || 90000, deltaLike, gammaLike, vegaLike, thetaLike, pcr: parsed.pcr || 2.0 };
-    }
-
-    function renderMarketCombo(combo){
-      if (!combo) return;
-      els.btcSummary.textContent = `BTC ~$${Math.round(combo.price)} • Sentiment: ${combo.sentiment || 'mixed'} • PCR: ${combo.pcr?.toFixed(2)||'–'}`;
-      const pct = v => `${clamp(Math.round(v*100),0,100)}%`;
-      els.mDelta.style.width = pct((combo.deltaLike+1)/2);
-      els.mGamma.style.width = pct(combo.gammaLike);
-      els.mVega.style.width = pct(combo.vegaLike);
-      els.marketCombo.textContent = `Δ:${combo.deltaLike.toFixed(2)} • Γ:${combo.gammaLike.toFixed(2)} • Vega:${combo.vegaLike.toFixed(2)} • Θ:${combo.thetaLike.toFixed(2)}`;
-      // prompt strategy text
-      promptStrategy();
-    }
-
-    // ---------- Strategy Prompt / Evaluation / Guidance ----------
-    function promptStrategy(){
-      const c = state.marketCombo || {deltaLike:0, vegaLike:0, gammaLike:0, thetaLike:0, pcr:1.5};
-      let bias = 'neutral';
-      if (c.deltaLike < -0.25) bias = 'bearish';
-      if (c.deltaLike > 0.25) bias = 'bullish';
-      els.strategyPrompt.textContent = `Market view: ${bias}. IV-RV ${(c.iv - c.rv || 0).toFixed?.(2) ?? '–'}. PCR ${c.pcr?.toFixed?.(2) || '–'}. Choose a strategy and evaluate.`;
-    }
-
-    function evaluateStrategy(){
-      const choice = els.strategyChoice.value;
-      const view = els.userView.value;
-      const thoughts = els.userRationale.value || '';
-      const c = state.marketCombo || {deltaLike:0, vegaLike:0, gammaLike:0, thetaLike:0, pcr:1.5};
-
-      const verdict = { correct:false, reason:'', alt:[], riskNotes:[], growthNotes:[] };
-
-      // Simple rule-set evaluation
-      if (Math.abs(c.deltaLike) < 0.2 && c.vegaLike > 0.5 && c.pcr > 2.5){
-        // neutral + rich IV + skew -> consider short premium
-        if (choice === 'short_straddle' || choice === 'iron_condor') verdict.correct = true;
-        verdict.reason = 'IV rich with skew; selling premium structures can monetize theta and vega.';
-        verdict.alt = ['Iron butterfly', 'Short strangle (wings)'];
-        verdict.riskNotes = ['Tail risk on large directional moves; use size management and wings.'];
-        verdict.growthNotes = ['Income-oriented; compound small wins if risk managed.'];
-      } else if (c.deltaLike < -0.25 && c.pcr > 2.5){
-        // bearish + put demand -> hedging or protective
-        if (choice === 'protective_put') verdict.correct = true;
-        verdict.reason = 'Risk-off / put-heavy: hedging with protective puts is sensible to protect downside.';
-        verdict.alt = ['Put spread (cheaper)', 'Collar'];
-        verdict.riskNotes = ['Premium cost; consider strike level and time to expiry.'];
-        verdict.growthNotes = ['Protects drawdowns; can preserve long-term growth.'];
-      } else if (Math.abs(c.deltaLike) < 0.2 && c.vegaLike < 0.4){
-        // low vega -> consider long volatility if expecting a move
-        if (choice === 'long_straddle') verdict.correct = true;
-        verdict.reason = 'Implied low: buying convexity can pay off if a large move or vol expansion occurs.';
-        verdict.alt = ['Calendar spread around event'];
-        verdict.riskNotes = ['Theta decay is an enemy; time the entry near catalysts.'];
-        verdict.growthNotes = ['Asymmetric upside; increases portfolio convexity.'];
-      } else {
-        // fallback
-        if (choice === 'covered_call') verdict.correct = true;
-        verdict.reason = 'Mixed signals; covered call harvests income while keeping directional exposure.';
-        verdict.alt = ['Bull call spread', 'Collar'];
-        verdict.riskNotes = ['Caps upside; assignment risk if the underlying rallies strongly.'];
-        verdict.growthNotes = ['Generates consistent income; good for conservative growth.'];
-      }
-
-      // Render guidance
-      renderGuidance(verdict, {choice, view, thoughts});
-      // Prepare template for simulation & exposure
-      state.strategyTemplate = STRATEGY_TEMPLATES[choice](state.inputs);
-      renderExposureTable(state.strategyTemplate);
-    }
-
-    function renderGuidance(verdict, user){
-      const box = els.guidanceBox;
-      box.innerHTML = `
-        <div class="${verdict.correct ? 'ok':'warn'}">${verdict.correct ? 'Strategy aligns with current signals.' : 'Strategy may be suboptimal vs signals.'}</div>
-        <div style="margin-top:6px">${verdict.reason}</div>
-        <div style="margin-top:6px"><strong>Alternatives:</strong> ${verdict.alt.join(', ')}</div>
-        <div style="margin-top:6px"><strong>Risk:</strong> ${verdict.riskNotes.join(' | ')}</div>
-        <div style="margin-top:6px"><strong>Growth:</strong> ${verdict.growthNotes.join(' | ')}</div>
-        <div style="margin-top:6px;color:var(--muted)">Your view: ${user.view} ${user.thoughts?('• '+user.thoughts):''}</div>
-      `;
-    }
-
-    // ---------- Strategy templates & simulation ----------
-    const STRATEGY_TEMPLATES = {
-      covered_call: (inputs) => ({
-        legs: [
-          {type:'stock', qty: +1, price: inputs.S},
-          {type:'call', qty: -1, K: inputs.K, T: toYears(inputs.days), sigma: inputs.sigma, r: inputs.r}
-        ]
-      }),
-      protective_put: (inputs) => ({
-        legs: [
-          {type:'stock', qty:+1, price: inputs.S},
-          {type:'put', qty:+1, K: inputs.K, T: toYears(inputs.days), sigma: inputs.sigma, r: inputs.r}
-        ]
-      }),
-      short_straddle: (inputs) => ({
-        legs: [
-          {type:'call', qty:-1, K: inputs.K, T: toYears(inputs.days), sigma: inputs.sigma, r: inputs.r},
-          {type:'put', qty:-1, K: inputs.K, T: toYears(inputs.days), sigma: inputs.sigma, r: inputs.r}
-        ]
-      }),
-      iron_condor: (inputs) => ({
-        legs: [
-          {type:'call', qty:-1, K: inputs.K+500, T:toYears(inputs.days), sigma:inputs.sigma, r:inputs.r},
-          {type:'call', qty:+1, K: inputs.K+1200, T:toYears(inputs.days), sigma:inputs.sigma, r:inputs.r},
-          {type:'put', qty:-1, K: inputs.K-500, T:toYears(inputs.days), sigma:inputs.sigma, r:inputs.r},
-          {type:'put', qty:+1, K: inputs.K-1200, T:toYears(inputs.days), sigma:inputs.sigma, r:inputs.r}
-        ]
-      }),
-      long_straddle: (inputs) => ({
-        legs: [
-          {type:'call', qty:+1, K: inputs.K, T:toYears(inputs.days), sigma:inputs.sigma, r:inputs.r},
-          {type:'put', qty:+1, K: inputs.K, T:toYears(inputs.days), sigma:inputs.sigma, r:inputs.r}
-        ]
-      })
-    };
-
-    function simulateStrategyPnL(template){
-      const { S, K, r, sigma, days } = state.inputs;
-      const T = toYears(days);
-      const span = 0.5; const steps = 61;
-      const labels = []; const pnl = [];
-      // baseline
-      let baseVal = 0;
-      for(const leg of template.legs){
-        if (leg.type === 'stock') baseVal += leg.qty * S;
-        else {
-          const price = calculateOptionPrice({S,K:leg.K,r,sigma,T}, leg.type);
-          baseVal += leg.qty * price;
-        }
-      }
-      for(let i=0;i<steps;i++){
-        const Si = S*(1-span + (2*span)*i/(steps-1));
-        labels.push(Math.round(Si));
-        let val = 0;
-        for(const leg of template.legs){
-          if (leg.type === 'stock') val += leg.qty * Si;
-          else {
-            const price = calculateOptionPrice({S:Si,K:leg.K || K,r,sigma,T}, leg.type);
-            val += leg.qty * price;
-          }
-        }
-        pnl.push(val - baseVal);
-      }
-      return { labels, datasets: [{label: 'Strategy PnL', data: pnl, borderColor:'#22c1c3', tension:0.2}] };
-    }
-
-    function applyStrategyToChart(){
-      if (!state.strategyTemplate) {
-        alert('No strategy selected/applied yet.');
-        return;
-      }
-      const chart = state.chart.instance;
-      const sim = simulateStrategyPnL(state.strategyTemplate);
-      state.chart.view = 'pnl';
-      chart.data.labels = sim.labels;
-      chart.data.datasets = sim.datasets;
-      chart.update();
-      renderExposureTable(state.strategyTemplate);
-    }
-
-    // ---------- Exposure table rendering ----------
-    function calculateLegGreeks(leg, S, r, sigma, T){
-      if (leg.type === 'stock') return {delta: leg.qty, gamma:0, vega:0, theta:0};
-      const g = calculateGreeks({S, K:leg.K, r, sigma, T}, leg.type);
-      // Use vega per 1% in display (g.vegaPer1Pct)
-      return { delta: g.delta * leg.qty, gamma: g.gamma * leg.qty, vega: g.vegaPer1Pct * leg.qty, theta: g.thetaPerDay * leg.qty };
-    }
-
-    function renderExposureTable(template){
-      const { S, r, sigma, days } = state.inputs;
-      const T = toYears(days);
-      let net = {delta:0,gamma:0,vega:0,theta:0};
-      let rows = '';
-      for(const leg of template.legs){
-        const g = calculateLegGreeks(leg, S, r, sigma, T);
-        net.delta += g.delta; net.gamma += g.gamma; net.vega += g.vega; net.theta += g.theta;
-        rows += `<tr><td>${leg.type}${leg.K?(' K='+leg.K):''}</td><td>${leg.qty}</td><td>${g.delta.toFixed(3)}</td><td>${g.gamma.toExponential(3)}</td><td>${g.vega.toFixed(3)}</td><td>${g.theta.toFixed(4)}</td></tr>`;
-      }
-      const table = `
-        <table>
-          <thead><tr><th>Leg</th><th>Qty</th><th>Δ</th><th>Γ</th><th>Vega (1%)</th><th>Θ/day</th></tr></thead>
-          <tbody>${rows}</tbody>
-          <tfoot><tr><td>Net</td><td></td><td>${net.delta.toFixed(3)}</td><td>${net.gamma.toExponential(3)}</td><td>${net.vega.toFixed(3)}</td><td>${net.theta.toFixed(4)}</td></tr></tfoot>
-        </table>
-      `;
-      els.exposureTable.innerHTML = table;
-    }
-
-    // ---------- Event wiring ----------
-    function wire(){
-      // sync ranges + numbers
-      syncRangeNumber(els.inpS, els.inpSNum);
-      syncRangeNumber(els.inpK, els.inpKNum);
-      syncRangeNumber(els.inpDays, els.inpDaysNum);
-      syncRangeNumber(els.inpSigma, els.inpSigmaNum);
-
-      // apply / reset
-      els.btnApplyInputs.addEventListener('click', ()=>{ updateAllFromInputs(); });
-      els.btnReset.addEventListener('click', ()=>{
-        state.inputs = { S:90000,K:90000,days:30,sigma:0.6,r:0,side:'call',position:'long' };
-        setInputsToDOM(); updateAllFromInputs();
-      });
-
-      // chart view toggles
-      els.viewGreeks.addEventListener('click', ()=>{ state.chart.view='greeks'; updateChart(); });
-      els.viewPrice.addEventListener('click', ()=>{ state.chart.view='price'; updateChart(); });
-      els.viewPnL.addEventListener('click', ()=>{ state.chart.view='pnl'; updateChart(); });
-      els.btnAnimate.addEventListener('click', ()=>{ state.chart.anim=!state.chart.anim; updateChart(); });
-
-      // quiz
-      els.btnNextQ.addEventListener('click', nextQuizQuestion);
-      els.btnSubmitAnswer.addEventListener('click', submitQuizAnswer);
-
-      // strategy
-      els.btnEvaluate.addEventListener('click', evaluateStrategy);
-      els.btnApplyToSim.addEventListener('click', applyStrategyToChart);
-    }
-
-    // ---------- bootstrap ----------
-    function bootstrap(){
-      // seed inputs & DOM
-      setInputsToDOM();
-      initChart();
-      updateAllFromInputs();
-      wire();
-      renderBadges();
-      // seed quiz
-      nextQuizQuestion();
-      // fetch BTC & market combo
-      fetchBTCData();
-    }
-
-    // Run bootstrap on DOM ready
-    window.addEventListener('DOMContentLoaded', bootstrap);
-
-    // Expose a few functions to console for convenience
-    window.app = {
-      calculateOptionPrice, calculateGreeks, applyPositionSign,
-      fetchBTCData, parseMarketGreeks, parseTextReport, mapParsedToCombo,
-      simulateStrategyPnL, applyStrategyToChart
-    };
-  </script>
+  <!-- JavaScript Modules -->
+  <script src="js/blackscholes.js"></script>
+  <script src="js/strategies.js"></script>
+  <script src="js/chart.js"></script>
+  <script src="js/onboarding.js"></script>
+  <script src="js/app.js"></script>
 </body>
+
 </html>
-```
