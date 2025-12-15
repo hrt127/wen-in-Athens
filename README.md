@@ -25,18 +25,30 @@ Then open `http://localhost:8080` in your browser.
 
 ```
 wen-in-Athens/
-├── index.html              # Main HTML file
-├── manifest.json           # PWA manifest
+├── index.html              # v1: Main HTML file
+├── manifest.json           # v1: PWA manifest
 ├── .gitignore             # Git ignore rules
-├── css/
+├── css/                    # v1: Stylesheets
 │   ├── main.css           # Main styles
 │   └── onboarding.css     # Onboarding styles
-├── js/
+├── js/                     # v1: JavaScript modules
 │   ├── blackscholes.js    # Black-Scholes calculations
 │   ├── strategies.js      # Strategy templates & evaluation
 │   ├── chart.js           # Chart.js wrapper
 │   ├── onboarding.js     # Onboarding system
 │   └── app.js            # Main application logic
+├── streamlit/              # v2: Streamlit application
+│   ├── app.py            # Main Streamlit app
+│   ├── blackscholes.py   # Python Black-Scholes implementation
+│   ├── strategies.py     # Strategy system in Python
+│   ├── charts.py         # Plotly visualization functions
+│   ├── elfa_client.py    # ELFA API client
+│   ├── narrative_radar.py # Narrative analysis
+│   ├── decision_moment.py # Trade decision analysis
+│   └── requirements.txt  # Python dependencies
+├── .streamlit/            # Streamlit configuration
+│   ├── config.toml       # Streamlit config
+│   └── secrets.toml      # API keys template
 ├── assets/
 │   └── images/           # Images (icons, etc.)
 └── docs/
@@ -53,9 +65,9 @@ wen-in-Athens/
 - **[Contributing](docs/CONTRIBUTING.md)** - How to contribute
 - **[Quick Reference](docs/QUICK_REFERENCE.md)** - Quick reference card
 
-## 🌐 GitHub Pages Deployment
+## 🌐 Deployment
 
-This project is configured for GitHub Pages deployment:
+### v1 (HTML/JS) - GitHub Pages
 
 1. Push to `main` branch
 2. Go to: `https://github.com/hrt127/wen-in-Athens/settings/pages`
@@ -65,8 +77,41 @@ This project is configured for GitHub Pages deployment:
 
 Your app will be live at: **`https://hrt127.github.io/wen-in-Athens/`** 🎉
 
+### v2 (Streamlit) - Streamlit Cloud
+
+1. **Install dependencies:**
+   ```bash
+   cd streamlit
+   pip install -r requirements.txt
+   ```
+
+2. **Configure secrets:**
+   - Copy `.streamlit/secrets.toml` and add your ELFA API key
+   - For Streamlit Cloud: Add secrets via the dashboard
+
+3. **Run locally:**
+   ```bash
+   # From project root
+   streamlit run streamlit/app.py
+   
+   # Or from streamlit directory
+   cd streamlit
+   streamlit run app.py
+   ```
+
+4. **Deploy to Streamlit Cloud:**
+   - Push your code to GitHub
+   - Go to [share.streamlit.io](https://share.streamlit.io)
+   - Connect your repository
+   - Set main file path: `streamlit/app.py`
+   - Add secrets in the dashboard (ELFA_API_KEY)
+   - Deploy!
+
+Your Streamlit app will be live at: **`https://your-app-name.streamlit.app`** 🚀
+
 ## ✨ Features
 
+### v1 (HTML/JS)
 - Interactive option pricing with Black-Scholes model
 - Real-time Greeks calculations (Delta, Gamma, Vega, Theta)
 - Multiple chart views (Greeks, Price, PnL)
@@ -74,6 +119,14 @@ Your app will be live at: **`https://hrt127.github.io/wen-in-Athens/`** 🎉
 - Quiz mode with badge system
 - Guided onboarding tour
 - BTC market context integration
+
+### v2 (Streamlit) - NEW!
+- All v1 features plus:
+- **Live ELFA Integration**: Real-time market narratives and sentiment
+- **3-Column Layout**: Greeks visualization, ELFA narratives, Decision moment
+- **Interactive Plotly Charts**: Enhanced visualizations with zoom and hover
+- **Strategy Analysis**: AI-powered trade decision analysis with ELFA data
+- **Rapid Iteration**: Easy parameter adjustment with live updates
 
 ## ⚠️ Disclaimer
 
