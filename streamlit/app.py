@@ -11,6 +11,7 @@ from elfa_client import ElfaClient
 from narrative_radar import NarrativeRadar
 from decision_moment import DecisionMoment
 from chorus import absurd_comment, market_mood_text, cult_rank, streak_reward
+from farcaster_client import FarcasterClient
 
 # Page configuration
 st.set_page_config(
@@ -394,6 +395,62 @@ with col3:
                 st.markdown("### 🏛️ Oracular Banter")
                 iv_level = st.session_state.market_combo.get('iv', 0.6) if st.session_state.market_combo else 0.6
                 st.markdown(absurd_comment(score, strategy, user_view, iv_level))
+
+                            # Farcaster sharing
+                st.markdown("---")
+                st.markdown("### 💎 Share to Farcaster")
+                
+                if st.button("🌐 Cast to Warpcast", use_container_width=True, type="secondary"):
+                    try:
+                        fc_client = FarcasterClient()
+                        
+                        # Generate cast text preview
+                        cast_preview = fc_client.generate_cast_text(
+                            strategy=strategy,
+                            user_view=user_view,
+                            score=score,
+                            philosopher_quote=absurd_comment(score, strategy, user_view, iv_level),
+                            cult_rank_name=cult_rank(st.session_state.score),
+                            favor_score=st.session_state.score,
+                            streak=st.session_state.streak,
+                            underlying=underlying,
+                            strike=strike,
+                            expiry_days=expiry,
+                            volatility=volatility
+                        )
+                        
+                        # Show preview
+                        with st.expander("👁️ Preview Cast", expanded=True):
+                            st.code(cast_preview, language="text")
+                        
+                        # Try to post
+                        result = fc_client.share_trade_result(
+                            strategy=strategy,
+                            user_view=user_view,
+                            score=score,
+                            philosopher_quote=absurd_comment(score, strategy, user_view, iv_level),
+                            favor_score=st.session_state.score,
+                            streak=st.session_state.streak,
+                            underlying=underlying,
+                            strike=strike,
+                            expiry_days=expiry,
+                            volatility=volatility
+                        )
+                        
+                        if result.get('success'):
+                            cast_hash = result['cast'].get('hash', '')
+                            warpcast_url = fc_client.get_warpcast_url(cast_hash) if cast_hash else ''
+                            st.success(f"✅ Cast posted successfully!")
+                            if warpcast_url:
+                                st.markdown(f"[View on Warpcast]({warpcast_url})")
+                        else:
+                            error_msg = result.get('error', 'Unknown error')
+                            if 'not configured' in error_msg:
+                                st.info("🔑 Farcaster credentials not configured. Add NEYNAR_API_KEY and FARCASTER_SIGNER_UUID to secrets to enable casting.")
+                            else:
+                                st.error(f"❌ Failed to post: {error_msg}")
+                    except Exception as e:
+                        st.error(f"❌ Error: {str(e)}")
 # Display cult rank
 rank = cult_rank(st.session_state.score)
 st.markdown(f"**Cult Rank:** {rank} ({st.session_state.score} favor) | **Orgasmic Streak:** {st.session_state.streak} rites")
