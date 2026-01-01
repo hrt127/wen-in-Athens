@@ -10,11 +10,11 @@ from charts import create_greeks_chart, create_price_chart, create_pnl_chart
 from elfa_client import ElfaClient
 from narrative_radar import NarrativeRadar
 from decision_moment import DecisionMoment
+from chorus import absurd_comment, market_mood_text, cult_rank, streak_reward
 
 # Page configuration
 st.set_page_config(
-    page_title="Greeks Orgy 🔥",
-    page_icon="🔥",
+    page_title="Wen in Athens: Temple of Greeks 🔥",    page_icon="🔥",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -28,11 +28,16 @@ if 'strategy_template' not in st.session_state:
     st.session_state.strategy_template = None
 if 'chart_view' not in st.session_state:
     st.session_state.chart_view = 'greeks'
+    if 'score' not in st.session_state:
+    st.session_state.score = 0
+if 'streak' not in st.session_state:
+    st.session_state.streak = 0
+if 'trades' not in st.session_state:
+    st.session_state.trades = []
 
 # Sidebar for strategy selection and inputs
 with st.sidebar:
-    st.title("🔥 Strategy Builder")
-    
+    st.title("🏛️ Order of Delta-Dionysus")    
     # Strategy selection
     strategy_options = {
         'Call': 'call',
@@ -135,7 +140,7 @@ inputs = {
 
 # Column 1: Greeks Visualization
 with col1:
-    st.subheader("📊 Greeks Visualization")
+    st.subheader("🏛️ Oracle of Greeks")
     
     # Get option side from strategy
     if strategy in ['call', 'covered_call']:
@@ -208,7 +213,7 @@ with col1:
 
 # Column 2: Live ELFA Narratives
 with col2:
-    st.subheader("📡 Live ELFA Narratives")
+    st.subheader("🔥 Chorus of Market Furies")
     
     # Initialize ELFA client
     try:
@@ -297,7 +302,7 @@ with col2:
 
 # Column 3: Decision Moment
 with col3:
-    st.subheader("⚡ Decision Moment")
+    st.subheader("🏛️ Judgment in the Agora")
     
     user_view = st.selectbox(
         "Your Market View",
@@ -360,6 +365,39 @@ with col3:
             st.warning("Please fetch narratives first.")
 
 # Footer
-st.divider()
-st.caption("Educational demo — not financial advice. Built with Streamlit + Plotly + ELFA.")
 
+                # Update score and streak
+                delta = (score - 0.5) * 20
+                st.session_state.score += int(delta)
+                if score > 0.6:
+                    st.session_state.streak += 1
+                else:
+                    st.session_state.streak = 0
+                
+                # Store trade
+                st.session_state.trades.append({
+                    'strategy': strategy,
+                    'user_view': user_view,
+                    'score': float(score),
+                    'underlying': underlying,
+                    'strike': strike,
+                    'expiry_days': expiry,
+                })
+                
+                # Show streak reward if applicable
+                reward_msg = streak_reward(st.session_state.streak)
+                if reward_msg:
+                    st.success(reward_msg)
+                
+                # Philosophical commentary
+                st.markdown("---")
+                st.markdown("### 🏛️ Oracular Banter")
+                iv_level = st.session_state.market_combo.get('iv', 0.6) if st.session_state.market_combo else 0.6
+                st.markdown(absurd_comment(score, strategy, user_view, iv_level))
+# Display cult rank
+rank = cult_rank(st.session_state.score)
+st.markdown(f"**Cult Rank:** {rank} ({st.session_state.score} favor) | **Orgasmic Streak:** {st.session_state.streak} rites")
+st.markdown("")  # spacing
+
+st.divider()
+st.caption("Mythic financial orgy — educational demo, not financial advice. May the gods favor your trades.")
