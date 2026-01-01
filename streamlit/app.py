@@ -30,11 +30,11 @@ if 'strategy_template' not in st.session_state:
 if 'chart_view' not in st.session_state:
     st.session_state.chart_view = 'greeks'
     if 'score' not in st.session_state:
-    st.session_state.score = 0
-if 'streak' not in st.session_state:
-    st.session_state.streak = 0
+        st.session_state.score = 0
+    if 'streak' not in st.session_state:
+        st.session_state.streak = 0
 if 'trades' not in st.session_state:
-    st.session_state.trades = []
+        st.session_state.trades = []
 
 # Sidebar for strategy selection and inputs
 with st.sidebar:
