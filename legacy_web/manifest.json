@@ -1,0 +1,14 @@
+{
+  "name": "Options Greeks Trainer",
+  "short_name": "Greeks",
+  "start_url": ".",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "assets/images/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
+
